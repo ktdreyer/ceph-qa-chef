@@ -1,5 +1,5 @@
 # Check if burnupi/plana
-if !node['hostname'].match(/^(plana|burnupi|mira|vpm)/)
+if !node[:hostname].match(/^(plana|burnupi|mira|vpm)/)
  raise "This recipe is only intended for plana/burnupi/mira/vpm hosts"
 end
 
@@ -433,54 +433,30 @@ if node[:platform] == "ubuntu"
 end
 
 if node[:platform] == "ubuntu"
-  execute "enable kernel logging to console" do
+  serial_port = 1
+  if node[:hostname].match(/^mira/)
+    serial_port = 2
+  end
+  directory '/etc/default/grub.d' do
+    owner "root"
+    group "root"
+    mode "0755"
+    action :create
+  end
+  template "/etc/default/grub.d/ceph-qa.cfg" do
+    source "ceph-qa.erb"
+    mode "0644"
+    owner "root"
+    group "root"
+     variables({:serial_port => serial_port})
+  end
+  # bump up kernel debug.  There must be a better place than /etc/rc.local
+  execute "set verbose kernel output via dmesg" do
     command <<-'EOH'
-      set -e
-      f=/etc/default/grub
-      #Mira are ttyS2
-      miracheck=$(uname -n | grep -ic mira || true)
-      # if it has a setting, make sure it's to ttyS1
-      if [ $miracheck -gt 0 ]
-      then
-      if grep -q '^GRUB_CMDLINE_LINUX=.*".*console=tty0 console=ttyS[012],115200' $f; then sed 's/console=ttyS[012]/console=ttyS2/' <$f >$f.chef; fi
-      else
-      if grep -q '^GRUB_CMDLINE_LINUX=.*".*console=tty0 console=ttyS[01],115200' $f; then sed 's/console=ttyS[01]/console=ttyS1/' <$f >$f.chef; fi
-      fi
-  
-      # if it has no setting, add it
-      if [ $miracheck -gt 0 ]
-      then
-      if ! grep -q '^GRUB_CMDLINE_LINUX=.*".* console=tty0 console=ttyS[012],115200.*' $f; then sed 's/^GRUB_CMDLINE_LINUX="\(.*\)"$/GRUB_CMDLINE_LINUX="\1 console=tty0 console=ttyS2,115200"/' <$f >$f.chef; fi
-      else
-      if ! grep -q '^GRUB_CMDLINE_LINUX=.*".* console=tty0 console=ttyS[01],115200.*' $f; then sed 's/^GRUB_CMDLINE_LINUX="\(.*\)"$/GRUB_CMDLINE_LINUX="\1 console=tty0 console=ttyS1,115200"/' <$f >$f.chef; fi
-      fi
-   
-      # if we did something; move it into place.  update-grub done below.
-      if [ -f $f.chef ] ; then mv $f.chef $f; fi
-  
-      #Remove quiet kernel output:
-      sed -i 's/quiet//g' $f
-      serialcheck=$(grep -ic serial $f || true)
-      if [ $serialcheck -eq 0 ]
-      then
-      if [ $miracheck -gt 0 ]
-      then
-      echo "" >> $f
-      echo "GRUB_TERMINAL=serial" >> $f
-      echo "GRUB_SERIAL_COMMAND=\"serial --unit=2 --speed=115200 --stop=1\"" >> $f
-      else
-      echo "" >> $f
-      echo "GRUB_TERMINAL=serial" >> $f
-      echo "GRUB_SERIAL_COMMAND=\"serial --unit=1 --speed=115200 --stop=1\"" >> $f
-      fi
-      fi
-  
-      #Don't hide grub menu
-  
-      sed -i 's/^GRUB_HIDDEN_TIMEOUT.*//g' $f
-  
       #set verbose kernel output via dmesg:
-      if ! grep -q dmesg /etc/rc.local; then sed -i 's/^exit 0/dmesg -n 7\nexit 0/g' /etc/rc.local; fi
+      if ! grep -q dmesg /etc/rc.local; then
+        sed -i 's/^exit 0/dmesg -n 7\nexit 0/g' /etc/rc.local
+      fi
     EOH
   end
 end

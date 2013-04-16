@@ -1,0 +1,12 @@
+#
+# Overrides for /etc/default/grub from ceph-qa-chef
+#
+
+GRUB_CMDLINE_LINUX="console=tty0 console=ttyS<%= @serial_port %>,115200"
+GRUB_TERMINAL_INPUT=serial
+GRUB_TERMINAL_OUTPUT=serial
+GRUB_SERIAL_COMMAND="serial --unit=<%= @serial_port %> --speed=115200 --stop=1" 
+GRUB_CMDLINE_LINUX_DEFAULT=$(echo $GRUB_CMDLINE_LINUX_DEFAULT | \
+        sed 's/quiet//')
+GRUB_HIDDEN_TIMEOUT=
+
