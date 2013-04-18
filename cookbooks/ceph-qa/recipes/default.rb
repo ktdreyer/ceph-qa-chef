@@ -443,7 +443,7 @@ if node[:platform] == "ubuntu"
     mode "0755"
     action :create
   end
-  template "/etc/default/grub.d/ceph-qa.cfg" do
+  template "/etc/grub.d/01_ceph_qa_fixup" do
     source "ceph-qa.erb"
     mode "0644"
     owner "root"

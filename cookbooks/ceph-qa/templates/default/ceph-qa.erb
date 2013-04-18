@@ -1,12 +1,16 @@
-#
-# Overrides for /etc/default/grub from ceph-qa-chef
-#
+# Fix up what would have gone in /etc/default/grub if it had a 
+# non-packaged way to modify it (like quantal and precise-updates do)
 
 GRUB_CMDLINE_LINUX="console=tty0 console=ttyS<%= @serial_port %>,115200"
+GRUB_CMDLINE_LINUX_DEFAULT=$(echo ${GRUB_CMDLINE_LINUX_DEFAULT} | \
+        sed 's/quiet//')
+
 GRUB_TERMINAL_INPUT=serial
 GRUB_TERMINAL_OUTPUT=serial
 GRUB_SERIAL_COMMAND="serial --unit=<%= @serial_port %> --speed=115200 --stop=1" 
-GRUB_CMDLINE_LINUX_DEFAULT=$(echo $GRUB_CMDLINE_LINUX_DEFAULT | \
-        sed 's/quiet//')
+echo "terminal_input serial"
+echo "terminal output serial"
+echo ${GRUB_SERIAL_COMMAND}
+
 GRUB_HIDDEN_TIMEOUT=
 
