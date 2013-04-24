@@ -1,0 +1,34 @@
+# Fix up what would have gone in /etc/default/grub if it had a
+# non-packaged way to modify it (like quantal and precise-updates do)
+#
+# if this were creating /etc/default/grub.d/ceph-qa.cfg, as it was
+# first designed, the variable settings would be enough.  However,
+# /etc/default/grub.d is a relatively new thing for Ubuntu, first in
+# quantal and then backported to precise...so instead we use this
+# to create /etc/grub.d/01_ceph_qa_fixup, which, because it runs after
+# 00_header, doesn't quite do the same job.  00_header will, by default,
+# assume gfxterm and set terminal_output to that briefly, until
+# we run and set it back.  This will cause glitches of nonstandard
+# output on the serial port that hopefully will be tolerable; there
+# doesn't seem to be any way around this without hacking /etc/default/grub,
+# which, if we do, apt will eventually complain about being edited
+# and ask what to do.  The reason for standing on our heads here is
+# to stay out of apt/dpkg's way.
+
+GRUB_CMDLINE_LINUX="console=tty0 console=ttyS<%= @serial_port %>,115200"
+GRUB_CMDLINE_LINUX_DEFAULT=$(echo ${GRUB_CMDLINE_LINUX_DEFAULT} | \
+        sed 's/quiet//')
+GRUB_HIDDEN_TIMEOUT=
+
+GRUB_TERMINAL_INPUT=serial
+GRUB_TERMINAL_OUTPUT=serial
+GRUB_SERIAL_COMMAND="serial --unit=<%= @serial_port %> --speed=115200 --stop=1"
+
+## the above is enough if this is ever put in /etc/default/grub.d
+## continue to undo what 00_header did
+
+echo ${GRUB_SERIAL_COMMAND}
+echo "terminal_input serial"
+echo "terminal_output serial"
+
+
