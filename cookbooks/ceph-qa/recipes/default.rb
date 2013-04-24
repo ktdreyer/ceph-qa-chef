@@ -1,5 +1,5 @@
 # Check if burnupi/plana
-if !node['hostname'].match(/^(plana|burnupi|mira|vpm)/)
+if !node[:hostname].match(/^(plana|burnupi|mira|vpm)/)
  raise "This recipe is only intended for plana/burnupi/mira/vpm hosts"
 end
 
@@ -497,7 +497,7 @@ if node[:platform] == "ubuntu"
      notifies :start, "service[ttyS1]"
   end
 
-  if node['hostname'].match(/^(mira)/)
+  if node[:hostname].match(/^(mira)/)
     cookbook_file '/etc/init/ttyS2.conf' do
        source 'ttyS2.conf'
        mode 0644
@@ -514,7 +514,7 @@ if node[:platform] == "ubuntu"
     action [:enable,:start]
   end
 
-  if node['hostname'].match(/^(mira)/)
+  if node[:hostname].match(/^(mira)/)
     service "ttyS2" do
       # Default provider for Ubuntu is Debian, and :enable doesn't work
       # for Upstart services unless we change provider.  Assume Upstart
