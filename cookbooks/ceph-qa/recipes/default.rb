@@ -55,7 +55,7 @@ if node[:platform] == "ubuntu"
     include_recipe "ceph-qa::radosgw"
   else
     Chef::Log.info("radosgw not supported on: #{node[:platform]} #{node[:platform_version]}")
-  
+
     # der.. well, run update.
     execute "apt-get update" do
       command "apt-get update"
@@ -71,7 +71,7 @@ if node[:platform] == "ubuntu"
   package 'gdb'
   package 'python-configobj'
   package 'python-gevent'
-  
+
   # for running ceph
   package 'libedit2'
   package 'libssl0.9.8'
@@ -102,7 +102,7 @@ if node[:platform] == "centos"
   package 'sysstat'
   package 'gdb'
   package 'python-configobj'
-  
+
   # for running ceph
   package 'libedit'
   package 'openssl098e'
@@ -148,10 +148,10 @@ if node[:platform] == "ubuntu"
   package 'libuuid1'
   package 'libfcgi'
   package 'btrfs-tools'
-  
+
   # for compiling helpers and such
   package 'libatomic-ops-dev'
-  
+
   # used by workunits
   package 'git-core'
   package 'attr'
@@ -159,7 +159,7 @@ if node[:platform] == "ubuntu"
   package 'bonnie++'
   package 'iozone3'
   package 'tiobench'
-  
+
   # No ltp-kernel-test package on quantal
   if node[:platform_version] != "12.10"
     package 'ltp-kernel-test'
@@ -170,7 +170,7 @@ if node[:platform] == "ubuntu"
   package 'libmpich2-3'
   package 'libmpich2-dev'
   package 'ant'
-  
+
   # used by the xfstests tasks
   package 'libtool'
   package 'automake'
@@ -181,7 +181,7 @@ if node[:platform] == "ubuntu"
   package 'xfsdump'
   package 'dmapi'
   package 'xfslibs-dev'
-  
+
   # for blktrace and seekwatcher
   package 'blktrace'
   package 'python-numpy'
@@ -210,10 +210,10 @@ if node[:platform] == "centos"
   package 'libuuid'
   package 'fcgi-devel'
   package 'btrfs-progs'
-  
+
   # for copmiling helpers and such
   package 'libatomic_ops-devel'
- 
+
   # used by workunits
   package 'git-all'
   package 'attr'
@@ -225,7 +225,7 @@ if node[:platform] == "centos"
   package 'dbench'
   package 'bonnie++'
   package 'tiobench'
-  
+
   # used by the xfstests tasks
   package 'libtool'
   package 'automake'
@@ -234,12 +234,12 @@ if node[:platform] == "centos"
   package 'libacl-devel'
   package 'bc'
   package 'xfsdump'
-  
+
   # for blktrace and seekwatcher
   package 'blktrace'
   package 'numpy'
   package 'python-matplotlib'
-  
+
   # for qemu:
   package 'qemu-kvm'
   package 'qemu-kvm-tools'
@@ -247,14 +247,14 @@ if node[:platform] == "centos"
 
   # for json_xs to investigate JSON by hand
   package 'perl-JSON'
-  
+
   # for pretty-printing xml
   package 'perl-XML-Twig'
-  
+
   # for java bindings, hadoop, etc.
   package 'java-1.7.0-openjdk-devel'
   package 'junit4'
-  
+
   # for disk/etc monitoring
   package 'smartmontools'
 end
@@ -297,7 +297,7 @@ if node[:platform] == "centos"
     group "root"
     notifies :restart, "service[ntpd]"
   end
-  
+
   service "ntpd" do
     action [:enable,:start]
   end
@@ -497,7 +497,7 @@ if node[:platform] == "ubuntu"
      notifies :start, "service[ttyS1]"
   end
 
-  if node['hostname'].match(/^(mira)/) 
+  if node['hostname'].match(/^(mira)/)
     cookbook_file '/etc/init/ttyS2.conf' do
        source 'ttyS2.conf'
        mode 0644
@@ -514,7 +514,7 @@ if node[:platform] == "ubuntu"
     action [:enable,:start]
   end
 
-  if node['hostname'].match(/^(mira)/) 
+  if node['hostname'].match(/^(mira)/)
     service "ttyS2" do
       # Default provider for Ubuntu is Debian, and :enable doesn't work
       # for Upstart services unless we change provider.  Assume Upstart
@@ -527,7 +527,7 @@ end
 if node[:platform] == "ubuntu"
   #NFS servers uport per David Z.
   package 'nfs-kernel-server'
-  
+
   #Static IP
   package 'ipcalc'
 end
@@ -537,7 +537,7 @@ if node[:platform] == "centos"
   package 'nfs-utils'
 end
 
-if !node['hostname'].match(/^(vpm)/)
+if !node[:hostname].match(/^(vpm)/)
   if node[:platform] == "ubuntu"
     execute "set up static IP in /etc/hosts" do
       command <<-'EOH'
@@ -619,7 +619,7 @@ if node[:platform] == "ubuntu"
       search front.sepia.ceph.com sepia.ceph.com
     EOH
   end
-  
+
   #Nagios sudo (for raid utilities)
   file '/etc/sudoers.d/90-nagios' do
     owner 'root'
@@ -640,11 +640,11 @@ if node[:platform] == "ubuntu"
     mode '0644'
     notifies :restart, "service[nagios-nrpe-server]"
   end
-  
+
   service "nagios-nrpe-server" do
     action [:enable,:start]
   end
-  
+
   #nagios nrpe settings
   file '/etc/default/nagios-nrpe-server' do
     owner 'root'
