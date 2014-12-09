@@ -61,19 +61,12 @@ priority=2
   EOH
 end
 
-
+# We no longer need a custom version of Apache.
 file '/etc/yum.repos.d/apache-ceph.repo' do
   owner 'root'
   group 'root'
   mode '0644'
-  content <<-EOH
-[centos6-apache-ceph]
-name=Cent OS 6 Local apache Repo
-baseurl=http://gitbuilder.ceph.com/apache2-rpm-rhel6-x86_64-basic/ref/master/
-gpgcheck=0
-enabled=1
-priority=2
-  EOH
+  content ''
 end
 
 file '/etc/yum.repos.d/fcgi-ceph.repo' do
@@ -227,35 +220,9 @@ package 'genisoimage'
 
 #Rados GW
 
-#Force downgrade of packages doesnt work on older chef, uninstall first.
-package 'httpd' do
-  action :remove
-end
-package 'http-devel' do
-  action :remove
-end
-package 'httpd-tools' do
-  action :remove
-end
-package 'mod_ssl' do
-  version '2.2.22-1.ceph.el6'
-end
-package 'httpd' do
-  version '2.2.22-1.ceph.el6'
-end
-package 'httpd-tools' do
-  version '2.2.22-1.ceph.el6'
-end
-package 'httpd-devel' do
-  version '2.2.22-1.ceph.el6'
-end
 package 'mod_fastcgi' do
   version '2.4.7-1.ceph.el6'
 end
-service "httpd" do
-  action [ :disable, :stop ]
-end
-
 
 package 'python-pip'
 package 'libevent-devel'
